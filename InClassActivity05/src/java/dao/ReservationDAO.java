@@ -3,8 +3,11 @@ package dao;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import model.Reservation;
 
 public class ReservationDAO {
@@ -34,5 +37,28 @@ public class ReservationDAO {
         PreparedStatement stmt = conn.prepareStatement(updateBook);
         stmt.setInt(1, bookId);
         stmt.executeUpdate();
+    }
+    
+    public List<Reservation> getReservations() throws ClassNotFoundException, SQLException {
+        List<Reservation> reservationList = new ArrayList<>();
+        String getReservations = "SELECT * FROM reservations";
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+        PreparedStatement stmt = conn.prepareStatement(getReservations);
+        
+        ResultSet rs = stmt.executeQuery(); 
+
+        while (rs.next()) {
+            Reservation reservation = new Reservation();
+            reservation.setId(rs.getInt("id"));
+            reservation.setStudentName(rs.getString("student_name"));
+            reservation.setStudentId(rs.getInt("student_id"));
+            reservation.setBookId(rs.getInt("book_id"));
+            reservation.setReservationDate(rs.getTimestamp("reservation_date").toLocalDateTime());
+            reservationList.add(reservation);
+        }
+        
+        return reservationList;
     }
 }
