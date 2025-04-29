@@ -15,12 +15,13 @@ import model.Book;
 @WebServlet("/searchBook")
 public class SearchBookServlet extends HttpServlet {
 
+    BookDAO bookDAO = new BookDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        BookDAO dao = new BookDAO();
         try{
-            List<Book> bookList = dao.getAllBooks();
+            List<Book> bookList = bookDAO.getAllBooks();
             request.setAttribute("bookList", bookList);
             RequestDispatcher dispatcher = request.getRequestDispatcher("searchBook.jsp");
             dispatcher.forward(request, response);
@@ -36,8 +37,7 @@ public class SearchBookServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             String title = request.getParameter("title");
-            BookDAO dao = new BookDAO();
-            List<Book> bookList = dao.searchBooks(title);
+            List<Book> bookList = bookDAO.searchBooks(title);
             request.setAttribute("bookList", bookList);
             RequestDispatcher dispatcher = request.getRequestDispatcher("searchBook.jsp");
             dispatcher.forward(request, response);

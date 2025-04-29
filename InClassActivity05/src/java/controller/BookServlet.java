@@ -14,6 +14,8 @@ import model.Book;
 @WebServlet("/addBook")
 public class BookServlet extends HttpServlet {
 
+    BookDAO bookDAO = new BookDAO();
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -29,8 +31,7 @@ public class BookServlet extends HttpServlet {
             book.setTitle(title);
             book.setAuthor(author);
             book.setStatus("Available");
-            BookDAO dao = new BookDAO();
-            dao.addBook(book);
+            bookDAO.addBook(book);
             response.sendRedirect("dashboard.jsp");
         }
         catch (Exception ex){

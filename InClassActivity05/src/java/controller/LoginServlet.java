@@ -13,6 +13,8 @@ import model.User;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
+    UserDAO userDAO = new UserDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -25,8 +27,7 @@ public class LoginServlet extends HttpServlet {
         try {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-            UserDAO dao = new UserDAO();
-            User user = dao.validateUser(username, password);
+            User user = userDAO.validateUser(username, password);
             if (user != null) {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);

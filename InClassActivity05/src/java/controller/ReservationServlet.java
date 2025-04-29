@@ -16,14 +16,16 @@ import model.Reservation;
 @WebServlet("/reserveBook")
 public class ReservationServlet extends HttpServlet {
 
+    BookDAO bookDAO = new BookDAO();
+    ReservationDAO reservationDAO = new ReservationDAO();
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             int bookId = Integer.parseInt(request.getParameter("bookId"));
-            BookDAO dao = new BookDAO();
             Book book = new Book();
-            book = dao.getBookById(bookId);
+            book = bookDAO.getBookById(bookId);
             
             request.setAttribute("book", book);
             RequestDispatcher dispatcher = request.getRequestDispatcher("reserveForm.jsp");
@@ -49,9 +51,8 @@ public class ReservationServlet extends HttpServlet {
             reservation.setStudentId(studentId);
             reservation.setBookId(bookId);
             
-            ReservationDAO dao = new ReservationDAO();
-            dao.addReservation(reservation);
-            dao.updateBookStatus(bookId);
+            reservationDAO.addReservation(reservation);
+            reservationDAO.updateBookStatus(bookId);
             response.sendRedirect("searchBook");
         }
         catch (Exception ex){
