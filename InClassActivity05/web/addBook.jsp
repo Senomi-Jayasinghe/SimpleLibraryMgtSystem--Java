@@ -92,7 +92,7 @@
         <div><strong>Library Admin</strong></div>
         <div class="nav-links">
             <a href="addBook.jsp">Add Books</a>
-            <a href="viewReservations.jsp">View Reservations</a>
+            <a href="viewReservation">View Reservations</a>
             <a href="logout">Logout</a>
         </div>
     </div>

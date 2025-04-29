@@ -97,7 +97,7 @@
                     <a href="addBook.jsp">Add Books</a>
                 </div>
                 <div class="card">
-                    <a href="viewReservations">View Reservations</a>
+                    <a href="viewReservation">View Reservations</a>
                 </div>
             <% } %>
         </div>
