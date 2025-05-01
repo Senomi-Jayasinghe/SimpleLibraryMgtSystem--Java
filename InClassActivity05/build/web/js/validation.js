@@ -21,3 +21,13 @@ function searchBooks() {
         document.getElementById("results").innerHTML = "<p style='color:red;'>Something went wrong</p>";
     }
 }
+
+function validateBookForm() {
+    let title = document.getElementById("title").value;
+    let author = document.getElementById("author").value;
+        if (title === "" || author === "") {
+            alert("Both title and author must be filled out.");
+            return false;
+        }
+    return true;
+}

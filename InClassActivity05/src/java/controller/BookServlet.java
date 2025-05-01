@@ -24,9 +24,17 @@ public class BookServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         try {
             String title = request.getParameter("title");
             String author = request.getParameter("author");
+            
+            if (title == null || title.trim().isEmpty() || author == null || author.trim().isEmpty()) {
+                request.setAttribute("error", "Invalid input!");
+                request.getRequestDispatcher("addBook.jsp").forward(request, response);
+                return;
+            }
+            
             Book book = new Book();
             book.setTitle(title);
             book.setAuthor(author);

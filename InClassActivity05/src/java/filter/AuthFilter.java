@@ -1,71 +1,153 @@
-
 package filter;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.User;
 
-@WebServlet(name = "AuthFilter", urlPatterns = {"/AuthFilter"})
-public class AuthFilter extends HttpServlet {
-
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet AuthFilter</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet AuthFilter at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+@WebFilter(filterName = "AuthFilter", urlPatterns = {"/addBook"})
+public class AuthFilter implements Filter {
+    
+    private static final boolean debug = true;
+    private FilterConfig filterConfig = null;
+    
+    public AuthFilter() {
+    }   
+    
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+        HttpSession session = ((HttpServletRequest) request).getSession();
+        User user = (User) session.getAttribute("user");
+        
+        if (user == null || !"Admin".equals(user.getRole())) {
+            ((HttpServletResponse) response).sendRedirect("error.jsp");
+        } 
+        else {
+            chain.doFilter(request, response);
+        }
+    }
+    
+    private void doBeforeProcessing(ServletRequest request, ServletResponse response)
+            throws IOException, ServletException {
+        if (debug) {
+            log("AuthFilte:DoBeforeProcessing");
+        }
+    }    
+    
+    private void doAfterProcessing(ServletRequest request, ServletResponse response)
+            throws IOException, ServletException {
+        if (debug) {
+            log("AuthFilte:DoAfterProcessing");
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    
+
     /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * Return the filter configuration object for this filter.
      */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    public FilterConfig getFilterConfig() {
+        return (this.filterConfig);
     }
 
     /**
-     * Handles the HTTP <code>POST</code> method.
+     * Set the filter configuration object for this filter.
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @param filterConfig The filter configuration object
      */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    public void setFilterConfig(FilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
     }
 
     /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
+     * Destroy method for this filter
+     */
+    public void destroy() {        
+    }
+
+    /**
+     * Init method for this filter
+     */
+    public void init(FilterConfig filterConfig) {        
+        this.filterConfig = filterConfig;
+        if (filterConfig != null) {
+            if (debug) {                
+                log("AuthFilte:Initializing filter");
+            }
+        }
+    }
+
+    /**
+     * Return a String representation of this object.
      */
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+    public String toString() {
+        if (filterConfig == null) {
+            return ("AuthFilte()");
+        }
+        StringBuffer sb = new StringBuffer("AuthFilte(");
+        sb.append(filterConfig);
+        sb.append(")");
+        return (sb.toString());
+    }
+    
+    private void sendProcessingError(Throwable t, ServletResponse response) {
+        String stackTrace = getStackTrace(t);        
+        
+        if (stackTrace != null && !stackTrace.equals("")) {
+            try {
+                response.setContentType("text/html");
+                PrintStream ps = new PrintStream(response.getOutputStream());
+                PrintWriter pw = new PrintWriter(ps);                
+                pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
 
+                // PENDING! Localize this for next official release
+                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");                
+                pw.print(stackTrace);                
+                pw.print("</pre></body>\n</html>"); //NOI18N
+                pw.close();
+                ps.close();
+                response.getOutputStream().close();
+            } catch (Exception ex) {
+            }
+        } else {
+            try {
+                PrintStream ps = new PrintStream(response.getOutputStream());
+                t.printStackTrace(ps);
+                ps.close();
+                response.getOutputStream().close();
+            } catch (Exception ex) {
+            }
+        }
+    }
+    
+    public static String getStackTrace(Throwable t) {
+        String stackTrace = null;
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            t.printStackTrace(pw);
+            pw.close();
+            sw.close();
+            stackTrace = sw.getBuffer().toString();
+        } catch (Exception ex) {
+        }
+        return stackTrace;
+    }
+    
+    public void log(String msg) {
+        filterConfig.getServletContext().log(msg);        
+    }
+    
 }

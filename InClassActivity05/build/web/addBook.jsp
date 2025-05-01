@@ -99,12 +99,12 @@
 
     <div class="form-container">
         <h2>Add a New Book</h2>
-        <form action="addBook" method="post">
+        <form action="addBook" method="post" onsubmit="return validateBookForm()">
             <label for="title">Title:</label>
-            <input type="text" name="title" id="title" required />
+            <input type="text" name="title" id="title"/>
 
             <label for="author">Author:</label>
-            <input type="text" name="author" id="author" required />
+            <input type="text" name="author" id="author"/>
 
             <input type="submit" value="Add Book" />
         </form>
